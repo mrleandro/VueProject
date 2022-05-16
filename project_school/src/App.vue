@@ -1,21 +1,28 @@
 <template>
     <div>
-        <Alunos/>
+        <Nav/>
+        <div class="marginPrincipal">
+            <router-view :key="$route.fullPath"></router-view>
+        </div>
     </div>
 </template>
 
 <script>
-    import Alunos from "./components/Aluno/Alunos.vue";
+    import Nav from './components/_nav/Nav.vue';
 
     export default {
         components: {
-            Alunos
+            Nav
         },
     };
 </script>
 
 <style>
     @import url("https://fonts.googleapis.com/css?family=Montserrat:400,700");
+
+    #app{
+        width: 100%;
+    }
 
     body{
         background-color: #eee;
@@ -30,6 +37,7 @@
 
     table {
         margin: 0px;
+        margin-top: 10px;
         padding: 0px;
         list-style-type: none;
         width: 100%;
@@ -40,6 +48,7 @@
         background-color: #e0edf4;
         margin-bottom: 2px;
         color: #3e5252;
+        text-align: center;
     }
     table thead th{
         background-color: rgb(184, 208, 216) !important;
@@ -48,12 +57,18 @@
         text-align: center !important;
     }
 
-    .colPequeno {
-        width: 5%;
+    .marginPrincipal{
+        width: 50%;
+        margin: auto;
     }
 
     .btn_danger{
         background-color: #fa4430;
+        color: white;
+    }
+
+    .btn_success{
+        background-color: #00a537;
         color: white;
     }
 

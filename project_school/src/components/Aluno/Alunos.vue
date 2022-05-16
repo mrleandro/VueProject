@@ -1,8 +1,9 @@
 <template>
     <div>
-        <Titulo texto="Alunos"/>
+        <Titulo v-if="professor.id" hasBackBtn="true" :texto="`Alunos do professor ${professor.nome}`"/>
+        <Titulo v-else texto="Todos os Alunos"/>
 
-        <div>
+        <div v-if="professor.id" class="inputAndBtn">
             <input type="text" placeholder="Nome do Aluno" v-model="nome" @keyup.enter="addAluno()">
             <button class="btn btn_input" @click="addAluno()">Adicionar</button>
         </div>
@@ -16,33 +17,48 @@
             <tbody v-if="alunos.length">
                 <tr v-for="(aluno, index) in alunos" :key="index">
                     <td>{{aluno.id}}</td>
-                    <td>{{aluno.nome}}</td>
+                    <router-link :to="`/alunoDetalhe/${aluno.id}`" custom v-slot="{ href, navigate }">
+                        <td :href="href" @click="navigate" style="cursor: pointer;">{{aluno.nome}} {{aluno.sobrenome}}</td>
+                    </router-link>
                     <td><button class="btn btn_danger" @click="remover(aluno)">Remover</button></td>
                 </tr>
             </tbody>
             <tfoot v-else>Nenhum aluno cadastrado</tfoot>
         </table>
+
     </div>
 </template>
 
 <script>
     import Titulo from '../_share/Titulo.vue';
-    import axios from 'axios'
+    import axios from 'axios';
+
     export default {
         name: "AlunosComponent",
         components:{
-            Titulo
+            Titulo,
         },
         data(){
             return {
                 titulo: "Aluno",
+                professor: {},
                 nome: "",
                 alunos: []
             }
         },
         created(){
-            axios.get('http://localhost:3000/alunos')
-            .then(alunos => this.alunos = alunos.data);
+            let profId = this.$route.params.prof_id
+
+            if(profId){
+                axios.get(`http://localhost:3000/professores/${profId}`)
+                .then(result => this.professor = result.data);
+
+                axios.get(`http://localhost:3000/alunos?idProfessor=${profId}`)
+                .then(result => this.alunos = result.data);
+            }
+            else
+                axios.get('http://localhost:3000/alunos')
+                .then(result => this.alunos = result.data);
         },
         props: {
 
@@ -55,7 +71,7 @@
                 });
             },
             addAluno(){
-                let aluno = {nome: this.nome, sobrenome: ""};
+                let aluno = {nome: this.nome, sobrenome: "", idProfessor: this.professor.id};
 
                 axios.post('http://localhost:3000/alunos', aluno)
                 .then(result => {
@@ -73,7 +89,7 @@
         padding: 20px;
         font-size: 1.3em;
         color: #687f7f;
-        display: inline;
+        width: 50%;
     }
 
     .btn_input{
@@ -81,8 +97,8 @@
         padding: 20px;
         font-size: 1.3em;
         color: white;
-        display: inline;
         background-color: rgb(116, 115, 115);
+        float: right;
     }
 
     .btn_input:hover{
@@ -90,4 +106,7 @@
         margin: 0px;
     }
 
+    .inputAndBtn{
+        margin-top: 10px;
+    }
 </style>
